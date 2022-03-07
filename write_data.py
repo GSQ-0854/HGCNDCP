@@ -16,10 +16,7 @@ def build_datas1():
     """构建数据样本"""
     labels = scio.loadmat('datas/CL_drug_triple.mat')['CL_drug_triple']  # 邻接矩阵
     adj = labels.copy()
-    # for i in range(adj.shape[0]):
-    #     for j in range(adj.shape[1]):
-    #         if adj[i, j] == -1:
-    #             adj[i, j] = 0   # 去负样本 只对正样本进行归一化操作
+   
 
     cellsim = scio.loadmat('datas/cellsim.mat')['cellsim']  # 细胞系相似性特征
     drugsim = scio.loadmat('datas/drugsim2.mat')['drugsim2']  # 药物相似性特征
@@ -40,7 +37,6 @@ print("adj type:", type(adj))
 print(adj)
 print("feature:", features)
 print(labels.shape)
-#
 labels = torch.from_numpy(labels).to(device)
 adj = torch.FloatTensor(adj).to(device)
 features = torch.FloatTensor(features).to(device)
@@ -59,12 +55,7 @@ for epoch in range(4000):
     loss1.backward()
     optimizer1.step()
     print(epoch, loss1.item())
-# with open('datas/cell_to_latent_datas.txt', 'w') as f:
-#     for i in range(len(cell_to_latent1)):
-#         f.write(str(cell_to_latent1[i])+'\n')
-# with open('datas/drug_to_latent_datas.txt', 'w') as f:
-#     for i in range(len(drug_to_latent1)):
-#         f.write(str(drug_to_latent1[i])+'\n')
+
 cell_to_latent = cell_to_latent1.detach().numpy()
 drug_to_latent = drug_to_latent1.detach().numpy()
 np.savetxt('datas/cell_to_latent_datas.txt', cell_to_latent)
