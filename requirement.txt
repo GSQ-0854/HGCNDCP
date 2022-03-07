@@ -1,0 +1,4 @@
+python == 3.8
+pytorch == 1.7.1
+sklearn == 0.0
+matplotlib == 3.2.2
