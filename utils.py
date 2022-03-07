@@ -17,10 +17,7 @@ def build_adj(A):
     f = open('datas/adj_n.txt', 'w')
     for row in range(M.shape[0]):
         for col in range(M.shape[1]):
-            # if A[row][col] == 1:
-            #     M[row][col] = 1
-            #     s = str(row) + ' '+str(col)+' ' + '1' + '\n'
-            #     f.write(s)
+         
             if A[row][col] == -1:
                 M[row][col] = -1
                 s = str(row) + ' ' + str(col) + ' ' + '1' + '\n'
@@ -50,8 +47,7 @@ def load_data(train_arr, test_arr):
                       shape=(962, 183)).toarray()
     adj = np.vstack((np.hstack((np.zeros(shape=(962, 962), dtype=int), M)),
                      np.hstack((M.transpose(), np.zeros(shape=(183, 183), dtype=int)))))
-    # adj = np.vstack((np.hstack((M, np.zeros(shape=(962, 962), dtype=int))),
-    #                  np.hstack((np.zeros(shape=(183, 183), dtype=int), M.transpose()))))
+
 
     cellsim_feature = scio.loadmat('datas/cellsim.mat')['cellsim']  # (962,962)
     drugsim_feature = scio.loadmat('datas/drugsim2.mat')['drugsim2']  # (183,183)
@@ -77,20 +73,12 @@ def build_datas():
         for j in range(labels.shape[1]):
             if labels[i, j] == 0:
                 labels_mask[i, j] = 0
-                # labels[i, j] = 0   # 将标签为0的位置对应的掩码置为0 后续将转为False
 
-    # for i in range(labels.shape[0]):
-    #     for j in range(labels.shape[1]):
-    #         if labels[i, j] == -1:
-    #             # labels_mask[i, j] = 0
-    #             labels[i, j] = 0   # 去负样本 只对正样本进行归一化操作
 
     adj = labels.copy()
     cellsim = scio.loadmat('datas/cellsim.mat')['cellsim']  # 细胞系相似性特征
     drugsim = scio.loadmat('datas/drugsim2.mat')['drugsim2']  # 药物相似性特征
-    # cellfeaure = scio.loadmat('datas/cell_gene_express.mat')['revised_data_express']
-    # drugfeature = scio.loadmat('datas/druginfo.mat')['druginfo']
-    # 正样本邻接矩阵
+
     adj = np.vstack((np.hstack((np.zeros(shape=(962, 962), dtype=int), adj)),
                      np.hstack((adj.transpose(), np.zeros(shape=(183, 183), dtype=int)))))
     # 特征矩阵
@@ -99,10 +87,7 @@ def build_datas():
     size_cellsim = cellsim.shape  # (962,962)
     size_drugsim = drugsim.shape  # (183,183)
 
-    # features = np.vstack((np.hstack((cellfeaure, np.zeros(shape=(962, 1444), dtype=int))),
-    #                       np.hstack((np.zeros(shape=(183, 16383), dtype=int), drugfeature))))
-    # size_cellsim = cellfeaure.shape  # (962,962)
-    # size_drugsim = drugfeature.shape  # (183,183)
+ 
     labels_mask = np.array(labels_mask, dtype=np.bool).reshape(-1)
     adj = preprocess_adj(adj)
     features = normalize_features(features)
@@ -120,20 +105,18 @@ def normalize_adj(adj):
     Symmetrically normalize adjacency matrix.
     邻接矩阵的对称正规化
     """
-    # coo_matrix函数将adj中的非0 的数进行一个张量返回 [（0,106） 1]  表示为  第0行第106列 值为1
+
     adj = sp.coo_matrix(adj)  # 构建张量
 
-    # adj1 = sp.coo_mattrix(adj)
 
-    # rowsum 也可表示为第n行的药物和rowsum个miRNA有关联
-    rowsum = np.array(adj.sum(1))   # rowsum为邻接矩阵每一行的和
+    rowsum = np.array(adj.sum(1))   
 
-    # power(x,y) 求x 的y次方 flatten将多维数组降为一维
+
     d_inv_sqrt = np.power(abs(rowsum), -0.5).flatten()  # 输出rowsum ** -1/2
     d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.  # 溢出的部分赋值为0
     d_mat_inv_sqrt = sp.diags(d_inv_sqrt)  # 对角化
 
-    # adj = (adj*d_mat).T*d_mat   因为adj和d_mat均为对称矩阵  因此  上式等价与   d_mat * adj * d_mat
+ 
     adj = adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt)        # 转置后相乘
     return adj.toarray()
 
@@ -156,7 +139,7 @@ def normalize_features(feat):
 def div_list(ls, n):
     """将列表分批次"""
     ls_len = len(ls)
-    j = ls_len // n  # 整数除法，返回一个不大于结果的最大整数
+    j = ls_len // n
     ls_return = []
     for i in range(0, (n-1)*j, j):
         ls_return.append(ls[i:i+j])
@@ -174,14 +157,8 @@ def generate_mask():
     adj_n = np.loadtxt('datas/adj_n.txt')
     A_N = sp.csc_matrix((adj_n[:, 2], (adj_n[:, 0], adj_n[:, 1])), shape=(962, 183)).toarray()
     A_N  = A_N.reshape([-1, 1])
-    # mask = np.zeros(A_N.shape)
-    # while(num < N):
-    #     a = random.randint(0, 961)
-    #     b = random.randint(0, 182)
-    #     if A_N[a, b] == -1 and mask[a, b] != 1:
-    #         mask[a,b] = 1
-    #         num += 1
-    mask = np.array(A_N[:, 0], dtype=np.bool).reshape([-1, 1])  # 在后面调用中会将负样本全部加入
+
+    mask = np.array(A_N[:, 0], dtype=np.bool).reshape([-1, 1])  
 
     return mask
 
@@ -198,11 +175,10 @@ def sparse_dropout(x, rate, noise_shape):
     random_tensor += torch.rand(noise_shape).to(x.device)  # noise_shape :49216
     dropout_mask = torch.floor(random_tensor).byte()
 
-    # 获取稀疏矩阵的索引 第一组数据为行索引 第二组数据为列索引
+ 
     i = x._indices()  # [2, 49216]
     v = x._values()  # [49216]  稀疏矩阵中的值
 
-    # [2, 49216] => [49216, 2] => [remained node, 2] => [2, remained node]
     i = i[:, dropout_mask]  # 取出每行中 mask非0  的索引
     v = v[dropout_mask]
 
@@ -223,20 +199,7 @@ def masked_loss(out, label, mask):
 
 
 def datas_normalize(data):
-    """把值规制在0.01~max之间"""
-    # mean = datas.mean()  # 均值
-    # std = datas.std()    # 标准差
-    # datas = (datas - mean) / std
-
-    # d_min = 0.1
-    # d_max = torch.max(datas[0]).item()
-    # for data in datas:
-    #     if d_max < torch.max(data).item():
-    #         d_max = torch.max(data).item()
-    #     else:
-    #         d_max = d_max
-    #
-    # datas = (np.abs(datas - d_min) / (d_max - d_min))
+ 
     data = data / data.sum()
     return data
 
@@ -279,14 +242,9 @@ def ROC_PLT(pred, label, num_class, name, t, cv):
         plt.plot(fpr_dict['micro'], tpr_dict['micro'], label='average ROC curve (area={0:0.5f})'
                  .format(roc_auc_dict['micro']), color='deeppink', linestyle='-', linewidth=1)
 
-        # plt.plot(fpr_dict['macro'], tpr_dict['macro'], label='macro-average ROC curve (area={0:0.2f})'
-        #          .format(roc_auc_dict['macro']), color='red', linestyle='-', linewidth=1)
 
         colors = cycle(['aqua', 'darkorange', 'cornflowerblue'])
-        # for i, color in zip(range(num_class), colors):
-        #     plt.plot(fpr_dict[i], tpr_dict[i], color=color, lw=lw,
-        #              label='ROC curve of class {0} (area = {1:0.5f})'
-        #                    ''.format(i, roc_auc_dict[i]))
+    
         plt.plot([0, 1], [0, 1], 'k--', lw=lw)
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
@@ -302,9 +260,8 @@ def ROC_PLT(pred, label, num_class, name, t, cv):
 def Scatter_PLT(x, y, label):
     plt.xlabel('Resistance')
     plt.ylabel('Sensitive')
-    # plt.xlim(xmax=1, xmin=0)
-    # plt.ylim(ymax=1, ymin=0)
-    colors1 = '#00CED1'  # 散点的颜色
+
+    colors1 = '#00CED1'  
     colors2 = '#DC143C'
     area = np.pi * 4 ** 2
     x_type0 = x[np.argwhere(label == 0)[:, 0]]
@@ -350,8 +307,7 @@ def softmax(x):  #
 
 
 def PR_plt(score_array, label_list, name, t, cv):
-    # score_array 中存储的为[score1, score2]
-    # y_pred = [score_array[i][label_list[i]] for i in range(len(label_list))]
+   
     y_pred = [score_array[i].argmax() for i in range(len(score_array))]
     y_true = np.array(label_list)
     precision, recall, threshoulds = precision_recall_curve(y_true, y_pred)
