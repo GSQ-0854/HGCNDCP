@@ -1,5 +1,5 @@
 # HGCNDCP
-Drug-Cell Line Response Prediction Based on Heterogeneous Graph Convolutional NetWorks
+# Drug-Cell Line Response Prediction Based on Heterogeneous Graph Convolutional NetWorks
 #### 运行环境
  python == 3.8
  
