@@ -28,10 +28,6 @@ print("labels:", type(labels), labels.shape)
 print("cell_to_latent_100:", type(cell_to_latent100), cell_to_latent100.shape)
 print("drug_to_latent_100:", type(drug_to_latent100), drug_to_latent100.shape)
 
-# adj = torch.FloatTensor(adj).to()
-# labels = torch.from_numpy(labels).to(device)
-# cell_to_latent100 *= 500
-# drug_to_latent100 *= 500
 cell_to_latent100 = torch.FloatTensor(cell_to_latent100)
 drug_to_latent100 = torch.FloatTensor(drug_to_latent100)
 
@@ -59,12 +55,6 @@ for i in tqdm(range(labels.shape[0])):
                 data_sets.append(data_set)
                 data_set_labels.append(labels[i, j] + 1)
                 data_set_indexs.append([i, j])
-
-            # data_set = np.hstack((cell_to_latent100[i], drug_to_latent100[j]))
-            # label = 0
-            # data_sets.append(data_set)
-            # data_set_labels.append(label)
-            # data_set_indexs.append([i, j])
         else:
             pass
 
@@ -92,10 +82,6 @@ def train(shuffle_index, name, t, cv):
     train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=64)
 
-    # # 单条数据展示
-    # examples = enumerate(train_loader)
-    # batch_id, (examples_data, examples_labels, examples_indexs) = next(examples)
-    # print(batch_id, examples_data, examples_labels)
     # 定义DNN网络模型
     dnn = DNN(args.hidden * 2)
     dnn.to(device)
@@ -111,13 +97,10 @@ def train(shuffle_index, name, t, cv):
         train_loss = 0
         train_acc = 0
         dnn.train()  # 训练模式
-        # # 动态修改学习率参数
-        # if epoch % 5 == 0:
-        #     optimizer.param_groups[0]['lr'] *= 0.1
+      
         for data, data_label, data_index in train_loader:
             data = data.to(device)
-            # data = data.clone().detach()
-            # data_label = torch.as_tensor(data_label, dtype=torch.long).to(device)
+          
             data_label = data_label.to(device)
             data_index = data_index.to(device)
 
@@ -128,8 +111,7 @@ def train(shuffle_index, name, t, cv):
             optimizer.zero_grad()
             loss.backward(retain_graph=True)
             optimizer.step()
-            # for name, parms in dnn.named_parameters():
-            #     print('-->name:', name, '-->grad_requirs:', parms.requires_grad, '-->grad_value:',parms.grad)
+
             train_loss += loss.item()
             _, pred = out.max(1)
             num_correct = (pred == data_label).sum().item()
@@ -225,7 +207,7 @@ for t in range(T):
         name = str(t) + '-' + str(cv)
         # 训练
         auc, aupr, loss = train(index, name, cv_num[t], cv)
-        # 数据记录即画图
+        
         auc_list.append(auc)
         aupr_list.append(aupr)
 
@@ -235,17 +217,5 @@ for t in range(T):
     result_dict[key] = auc_list
     key += 1
     result_dict[key] = aupr_list
-# filename = "result_visualization/excels/results.xlsx"
-# write_excel(result_dict, filename)
 
-# # plt.ylim(ymax=0.550, ymin=0)
-# plt.plot(np.arange(len(cross_validation_loss[0])), cross_validation_loss[0],
-#          label="2-fold cross valid", color='darkorange', linestyle='-', linewidth=2)
-# plt.plot(np.arange(len(cross_validation_loss[1])), cross_validation_loss[1],
-#          label="5-fold cross valid", color='purple', linestyle=':', linewidth=2)
-# plt.plot(np.arange(len(cross_validation_loss[2])), cross_validation_loss[2],
-#          label="10-fold cross valid", color='green', linestyle='-.', linewidth=2)
-# plt.legend(loc="upper right")
-# plt.savefig('result_visualization/pictures/x-corss_valid_loss.jpg')
-# plt.show()
 
