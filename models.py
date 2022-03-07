@@ -63,8 +63,7 @@ class DNN(nn.Module):
         self.linear6 = nn.Linear(64, 2)
 
         self.batchNorm1 = nn.BatchNorm1d(num_features=128)
-        # self.batchNorm2 = nn.BatchNorm1d(num_features=450)
-        # self.batchNorm3 = nn.BatchNorm1d(num_features=256)
+      
         self.batchNorm4 = nn.BatchNorm1d(num_features=96)
         self.batchNorm5 = nn.BatchNorm1d(num_features=64)
 
@@ -76,18 +75,7 @@ class DNN(nn.Module):
         # x = F.leaky_relu(x)
         x = F.relu(x)
 
-        # x = self.linear2(x)  #
-        # x = self.batchNorm2(x)
-        # x = F.dropout(x, p=0.4)
-        # # x = F.relu(x)
-        #
-        # x = self.linear3(x)
-        # x = self.batchNorm3(x)  # input 10
-        # x = F.dropout(x, p=0.25)
-        # x = F.leaky_relu(x)
-        # # x = F.relu(x)
-
-        x = self.linear4(x)
+         x = self.linear4(x)
         x = self.batchNorm4(x)   # 64
         x = F.dropout(x, p=0.18)
         x = F.leaky_relu(x)
@@ -120,9 +108,6 @@ class DNN(nn.Module):
         return loss
 
 
-# resnet = resnet18(pretrained=True)
-
-
 class DNN_Con(nn.Module):
     def __init__(self):
         super(DNN_Con, self).__init__()
@@ -139,13 +124,7 @@ class DNN_Con(nn.Module):
             nn.Linear(120, 84),
             nn.Linear(84, 3)
         )
-        # self.conv1 = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=, padding=1, stride=1)
-        # self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
-        # self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5, stride=1)
-        # self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
-        # self.fc1 = nn.Linear(400, 120)
-        # self.fc2 = nn.Linear(120, 84)
-        # self.fc3 = nn.Linear(84, 3)
+     
 
     def forward(self, x):
         #
