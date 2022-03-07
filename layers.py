@@ -16,10 +16,7 @@ def dot(x, y, sparse=False):
 
 
 class GraphConvolution(nn.Module):
-    # def __init__(self, size1, size2, latent_factor_num, num_features_nonzero,
-    #              dropout=0,
-    #              is_spare_inputs=False,
-    #              activation=F.relu):
+
     def __init__(self, size1, size2, latent_factor_num, num_features_nonzero,
                  activation=F.relu):
         super(GraphConvolution, self).__init__()
@@ -28,21 +25,16 @@ class GraphConvolution(nn.Module):
         self.size2 = size2
         # self.dropout = dropout
         self.activation = activation
-        # self.is_spare_inputs = is_spare_inputs
+     
         self.num_feature_nonzero = num_features_nonzero
         self.weight = nn.Parameter(torch.randn(size1[1]+size2[1], latent_factor_num))  # 权值矩阵
         self.bias = nn.Parameter(torch.randn(size1[0]+size2[0], latent_factor_num))  # 偏置矩阵
-        # self.weight = nn.parameter(torch.Tensor(latent_factor_num, size1[1]+size2[1]))
-        # self.bias = nn.parameter(torch.Tensor(latent_factor_num, size1[0]+size2[0]))
+      
 
     def forward(self, inputs):
         """卷积操作"""
         adj, feature = inputs
-        # if self.training and self.is_spare_inputs:
-        #     adj = sparse_dropout(adj, self.dropout, self.num_feature_nonzero)
-        # elif self.training:
-        #     adj = F.dropout(adj, self.dropout)
-
+  
         con = dot(adj, feature)  # (1145,1145)
         hidden = dot(con, self.weight)
         hidden = torch.add(hidden, self.bias)  # 编码后的F
@@ -66,7 +58,5 @@ class Decoder(nn.Module):
         cell_to_latent = hidden[0:cell_num, :]
         drug_to_latent = hidden[cell_num:, :]
         new_output = dot(dot(cell_to_latent, self.weight), drug_to_latent.T)
-        # cell_latent_drug = torch.reshape(cell_latent_drug, [-1, 1])
-        # return cell_latent_drug
-        # new_output = dot(cell_to_latent, drug_to_latent.T)
+     
         return cell_to_latent, drug_to_latent, new_output
