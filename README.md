@@ -1,5 +1,5 @@
 # HGCNDCP
-基于异构图卷积网络的药物-细胞系响应预测
+Drug-Cell Line Response Prediction Based on Heterogeneous Graph Convolutional NetWorks
 #### 运行环境
  python == 3.8
  
